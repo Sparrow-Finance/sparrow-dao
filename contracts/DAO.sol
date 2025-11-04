@@ -45,8 +45,7 @@ contract SparrowGovernor is GovernorUpgradeable, GovernorSettingsUpgradeable, Go
     uint256 public constitutionalThreshold;
     
     /// @notice Treasury-heavy proposal limits
-    uint256 public treasuryHeavyUsdThreshold;  // $100k
-    uint256 public treasuryHeavyPercentage;       
+    uint256 public treasuryHeavyUsdThreshold;  // $100k      
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -58,7 +57,7 @@ contract SparrowGovernor is GovernorUpgradeable, GovernorSettingsUpgradeable, Go
         initializer
     {
         __Governor_init("SparrowGovernor");
-        __GovernorSettings_init(2 days, 3 days, 1_000_000e18);
+        __GovernorSettings_init(2 days, 3 days, 500_000e18);
         __GovernorCountingSimple_init();
         __GovernorVotes_init(_token);
         __GovernorVotesQuorumFraction_init(25);
@@ -74,7 +73,6 @@ contract SparrowGovernor is GovernorUpgradeable, GovernorSettingsUpgradeable, Go
         constitutionalThreshold = 6667; // 66.7%
         
         treasuryHeavyUsdThreshold = 100_000e18; // $100k
-        treasuryHeavyPercentage = 200; // 20%
     }
 
     // CUSTOM PROPOSE FUNCTION
@@ -240,10 +238,11 @@ contract SparrowGovernor is GovernorUpgradeable, GovernorSettingsUpgradeable, Go
     /// @param newThreshold New threshold in USD (with 18 decimals)
     function setTreasuryHeavyUsdThreshold(uint256 newThreshold) external onlyGovernance {
         require(newThreshold >= 10_000e18, "Threshold must be at least $10k");
-        
+        require(newThreshold <= 10_000_000e18, "Threshold cannot exceed $10M");
+    
         uint256 oldThreshold = treasuryHeavyUsdThreshold;
         treasuryHeavyUsdThreshold = newThreshold;
-        
+    
         emit ThresholdUpdated("treasuryHeavyUsdThreshold", oldThreshold, newThreshold);
     }
     
