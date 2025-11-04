@@ -77,9 +77,9 @@ describe("SparrowGovernor", function () {
     });
 
     it("Should have correct voting settings", async function () {
-      expect(await governor.votingDelay()).to.equal(1209600); // 2 weeks in seconds
+      expect(await governor.votingDelay()).to.equal(172800); // 2 days in seconds
       expect(await governor.votingPeriod()).to.equal(259200); // 3 days in seconds
-      expect(await governor.proposalThreshold()).to.equal(ethers.parseEther("1"));
+      expect(await governor.proposalThreshold()).to.equal(ethers.parseEther("1000000")); // 1M SPRO
     });
   });
 

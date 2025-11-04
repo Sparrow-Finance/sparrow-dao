@@ -58,7 +58,7 @@ contract SparrowGovernor is GovernorUpgradeable, GovernorSettingsUpgradeable, Go
         initializer
     {
         __Governor_init("SparrowGovernor");
-        __GovernorSettings_init(2 weeks, 3 days, 1e18);
+        __GovernorSettings_init(2 days, 3 days, 1_000_000e18);
         __GovernorCountingSimple_init();
         __GovernorVotes_init(_token);
         __GovernorVotesQuorumFraction_init(25);
@@ -245,6 +245,42 @@ contract SparrowGovernor is GovernorUpgradeable, GovernorSettingsUpgradeable, Go
         treasuryHeavyUsdThreshold = newThreshold;
         
         emit ThresholdUpdated("treasuryHeavyUsdThreshold", oldThreshold, newThreshold);
+    }
+    
+    /// @notice Update the standard approval threshold
+    /// @param newThreshold New threshold in basis points (e.g., 5000 = 50%)
+    function setStandardThreshold(uint256 newThreshold) external onlyGovernance {
+        require(newThreshold >= 2500, "Threshold must be at least 25%");
+        require(newThreshold <= 7500, "Threshold cannot exceed 75%");
+        
+        uint256 oldThreshold = standardThreshold;
+        standardThreshold = newThreshold;
+        
+        emit ThresholdUpdated("standardThreshold", oldThreshold, newThreshold);
+    }
+    
+    /// @notice Update the treasury-heavy approval threshold
+    /// @param newThreshold New threshold in basis points (e.g., 6000 = 60%)
+    function setTreasuryHeavyThreshold(uint256 newThreshold) external onlyGovernance {
+        require(newThreshold >= standardThreshold, "Must be >= standard threshold");
+        require(newThreshold <= 9000, "Threshold cannot exceed 90%");
+        
+        uint256 oldThreshold = treasuryHeavyThreshold;
+        treasuryHeavyThreshold = newThreshold;
+        
+        emit ThresholdUpdated("treasuryHeavyThreshold", oldThreshold, newThreshold);
+    }
+    
+    /// @notice Update the constitutional approval threshold
+    /// @param newThreshold New threshold in basis points (e.g., 6667 = 66.7%)
+    function setConstitutionalThreshold(uint256 newThreshold) external onlyGovernance {
+        require(newThreshold >= treasuryHeavyThreshold, "Must be >= treasury-heavy threshold");
+        require(newThreshold <= 9500, "Threshold cannot exceed 95%");
+        
+        uint256 oldThreshold = constitutionalThreshold;
+        constitutionalThreshold = newThreshold;
+        
+        emit ThresholdUpdated("constitutionalThreshold", oldThreshold, newThreshold);
     }
     
     /// @notice Event emitted when a quorum percentage is updated
